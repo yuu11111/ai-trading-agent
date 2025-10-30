@@ -21,6 +21,8 @@ class TAAPIClient:
             try:
                 resp = requests.get(url, params=params, timeout=10)
                 resp.raise_for_status()
+                # Rate limit: Basic plan allows 5 requests per 15 seconds, so add delay after success
+                time.sleep(3.5)  # ~3.5s delay to stay under 5/15s limit (15/5=3s, with buffer)
                 return resp.json()
             except requests.HTTPError as e:
                 if e.response.status_code >= 500 and attempt < retries - 1:
