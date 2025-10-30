@@ -1,29 +1,26 @@
 FROM python:3.12-slim
 
-# System deps
+WORKDIR /app
+
+# システム依存
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential curl ca-certificates git && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Rye インストール
+RUN curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash
+ENV PATH="/root/.rye/shims:$PATH"
 
-# Copy project metadata and install deps
-COPY pyproject.toml poetry.lock ./
-
-# Install Poetry lightweightly
-ENV POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_NO_INTERACTION=1
-RUN pip install --no-cache-dir poetry && \
-    poetry install --no-interaction --no-ansi --no-root
-
-# Copy source
+# プロジェクトコピー
+COPY pyproject.toml rye.lock* ./
 COPY src ./src
 
-# API defaults
+# 依存同期（システム環境にインストール）
+RUN rye sync --no-dev --system
+
+# ポート設定
 ENV APP_PORT=3000
 EXPOSE 3000
 
-# Default command: run as module to keep absolute imports working
-ENTRYPOINT ["poetry", "run", "python", "-m", "src.main"]
-
-
+# 実行
+CMD ["python", "-m", "trading_agent.main"]
