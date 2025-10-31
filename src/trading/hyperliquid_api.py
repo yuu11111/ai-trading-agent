@@ -143,32 +143,38 @@ class HyperliquidAPI:
                 return round(amount, decimals)
         return round(amount, 8)
 
-    async def place_buy_order(self, asset, amount, slippage=0.01):
+    async def place_buy_order(self, asset, amount, slippage=0.01, leverage=None):
         """Submit a market buy order with exchange-side rounding and retry logic.
 
         Args:
             asset: Market symbol to open.
             amount: Contract size to open before rounding.
             slippage: Maximum acceptable slippage expressed as a decimal.
+            leverage: Leverage to set before placing the order (optional).
 
         Returns:
             Raw SDK response from :meth:`Exchange.market_open`.
         """
         amount = self.round_size(asset, amount)
+        if leverage is not None:
+            await self._retry(lambda: self.exchange.update_leverage(leverage, asset, is_cross=True))
         return await self._retry(lambda: self.exchange.market_open(asset, True, amount, None, slippage))
 
-    async def place_sell_order(self, asset, amount, slippage=0.01):
+    async def place_sell_order(self, asset, amount, slippage=0.01, leverage=None):
         """Submit a market sell order with exchange-side rounding and retry logic.
 
         Args:
             asset: Market symbol to open.
             amount: Contract size to open before rounding.
             slippage: Maximum acceptable slippage expressed as a decimal.
+            leverage: Leverage to set before placing the order (optional).
 
         Returns:
             Raw SDK response from :meth:`Exchange.market_open`.
         """
         amount = self.round_size(asset, amount)
+        if leverage is not None:
+            await self._retry(lambda: self.exchange.update_leverage(leverage, asset, is_cross=True))
         return await self._retry(lambda: self.exchange.market_open(asset, False, amount, None, slippage))
 
     async def place_take_profit(self, asset, is_buy, amount, tp_price):

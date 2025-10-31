@@ -398,7 +398,10 @@ def main():
                             continue
                         amount = alloc_usd / current_price
 
-                        order = await hyperliquid.place_buy_order(asset, amount) if is_buy else await hyperliquid.place_sell_order(asset, amount)
+                        # Set leverage based on setup grade (Fabio Valenti's leverage policy)
+                        leverage = {"A": 5, "B": 3, "C": 2}.get(setup_grade, 2)
+
+                        order = await hyperliquid.place_buy_order(asset, amount, leverage=leverage) if is_buy else await hyperliquid.place_sell_order(asset, amount, leverage=leverage)
                         # Confirm by checking recent fills for this asset shortly after placing
                         await asyncio.sleep(1)
                         fills_check = await hyperliquid.get_recent_fills(limit=10)
