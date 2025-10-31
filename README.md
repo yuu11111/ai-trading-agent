@@ -121,22 +121,22 @@ From the project directory:
 
 ```bash
 # Build and push Docker image
-docker build --platform linux/amd64 -t gcr.io/YOUR_PROJECT_ID/trading-agent .
-docker push gcr.io/YOUR_PROJECT_ID/trading-agent
+docker build --platform linux/amd64 -t asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/trading-agent/trading-agent .
+docker push asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/trading-agent/trading-agent
 
 # Deploy to Cloud Run
 gcloud run deploy trading-agent \
-  --image gcr.io/YOUR_PROJECT_ID/trading-agent \
+  --image asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/trading-agent/trading-agent \
   --platform managed \
-  --region us-central1 \
+  --region asia-northeast1 \
   --allow-unauthenticated \
   --set-env-vars TAAPI_API_KEY=YOUR_TAAPI_KEY \
   --set-env-vars HYPERLIQUID_PRIVATE_KEY=YOUR_PRIVATE_KEY \
   --set-env-vars OPENROUTER_API_KEY=YOUR_OPENROUTER_KEY \
   --set-env-vars ASSETS="BTC ETH" \
-  --set-env-vars INTERVAL="1h" \
+  --set-env-vars INTERVAL="10m" \
   --set-env-vars LLM_MODEL="x-ai/grok-4" \
-  --memory 2Gi \
+  --memory 4Gi \
   --cpu 1 \
   --max-instances 1 \
   --timeout 3600

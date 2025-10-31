@@ -53,12 +53,20 @@ class TAAPIClient:
         sma_response = self._get_with_retry(f"{self.base_url}sma", params)
         ema_response = self._get_with_retry(f"{self.base_url}ema", params)
         bbands_response = self._get_with_retry(f"{self.base_url}bbands", params)
+        atr_response = self._get_with_retry(f"{self.base_url}atr", params)
+        obv_response = self._get_with_retry(f"{self.base_url}obv", params)
+        mfi_response = self._get_with_retry(f"{self.base_url}mfi", params)
+        volume_response = self._get_with_retry(f"{self.base_url}volume", params)
         return {
             "rsi": rsi_response.get("value"),
             "macd": macd_response,
             "sma": sma_response.get("value"),
             "ema": ema_response.get("value"),
-            "bbands": bbands_response
+            "bbands": bbands_response,
+            "atr": atr_response.get("value"),
+            "obv": obv_response.get("value"),
+            "mfi": mfi_response.get("value"),
+            "volume": volume_response.get("value")
         }
 
     def get_historical_indicator(self, indicator, symbol, interval, results=10, params=None):
