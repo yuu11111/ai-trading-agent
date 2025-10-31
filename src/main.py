@@ -468,6 +468,29 @@ def main():
                                 "filled": filled
                             }
                             f.write(json.dumps(diary_entry) + "\n")
+                    elif action == "cancel_specific":
+                        # Cancel specific orders by their IDs
+                        order_ids = output.get("order_ids", [])
+                        cancel_results = []
+                        for oid in order_ids:
+                            try:
+                                result = await hyperliquid.cancel_order(asset, oid)
+                                cancel_results.append({"oid": oid, "result": result})
+                            except Exception as e:
+                                cancel_results.append({"oid": oid, "error": str(e)})
+                        add_event(f"CANCEL_SPECIFIC {asset} [{setup_grade}]: {output.get('rationale', '')} - {cancel_results}")
+                        # Write to diary
+                        with open(diary_path, "a") as f:
+                            diary_entry = {
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "asset": asset,
+                                "action": "cancel_specific",
+                                "setup_grade": setup_grade,
+                                "order_ids": order_ids,
+                                "cancel_results": cancel_results,
+                                "rationale": output.get("rationale", "")
+                            }
+                            f.write(json.dumps(diary_entry) + "\n")
                     else:
                         add_event(f"Hold {asset} [{setup_grade}]: {output.get('rationale', '')}")
                         # Write hold to diary

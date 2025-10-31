@@ -57,7 +57,8 @@ class TradingAgent:
             "5) Overbought/oversold ≠ reversal by itself: Treat RSI extremes as risk-of-pullback. You need structure + momentum confirmation to bet against trend. Prefer tightening stops or taking partial profits over instant flips.\n"
             "6) Prefer adjustments over exits: If the thesis weakens but is not invalidated, first consider: tighten stop (e.g., to a recent swing or ATR multiple), trail TP, or reduce size. Flip only on hard invalidation + fresh confluence.\n\n"
             "Decision discipline (per asset)\n"
-            "- Choose one: buy / sell / hold.\n"
+            "- Choose one: buy / sell / hold / cancel_specific.\n"
+            "- cancel_specific: Cancel specific orders by their IDs (provide order_ids array).\n"
             "- Proactively harvest profits when price action presents a clear, high-quality opportunity that aligns with your thesis.\n"
             "- You control allocation_usd.\n"
             "- TP/SL sanity:\n"
@@ -170,13 +171,14 @@ class TradingAgent:
                                 "type": "object",
                                 "properties": {
                                     "asset": {"type": "string", "enum": assets_list},
-                                    "action": {"type": "string", "enum": ["buy", "sell", "hold"]},
+                                    "action": {"type": "string", "enum": ["buy", "sell", "hold", "cancel_specific"]},
                                     "allocation_usd": {"type": "number"},
                                     "tp_price": {"type": ["number", "null"]},
                                     "sl_price": {"type": ["number", "null"]},
                                     "exit_plan": {"type": "string"},
                                     "rationale": {"type": "string"},
                                     "setup_grade": {"type": "string", "enum": ["A", "B", "C"]},
+                                    "order_ids": {"type": "array", "items": {"type": "string"}}
                                 },
                                 "required": ["asset", "action", "allocation_usd", "tp_price", "sl_price", "exit_plan", "rationale", "setup_grade"],
                                 "additionalProperties": False,
@@ -232,13 +234,14 @@ class TradingAgent:
             """Assemble the JSON schema used for structured LLM responses."""
             base_properties = {
                 "asset": {"type": "string", "enum": assets},
-                "action": {"type": "string", "enum": ["buy", "sell", "hold"]},
+                "action": {"type": "string", "enum": ["buy", "sell", "hold", "cancel_specific"]},
                 "allocation_usd": {"type": "number", "minimum": 0},
                 "tp_price": {"type": ["number", "null"]},
                 "sl_price": {"type": ["number", "null"]},
                 "exit_plan": {"type": "string"},
                 "rationale": {"type": "string"},
                 "setup_grade": {"type": "string", "enum": ["A", "B", "C"]},
+                "order_ids": {"type": "array", "items": {"type": "string"}}
             }
             required_keys = ["asset", "action", "allocation_usd", "tp_price", "sl_price", "exit_plan", "rationale", "setup_grade"]
             return {
