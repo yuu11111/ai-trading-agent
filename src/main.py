@@ -388,14 +388,21 @@ def main():
                         base_risk_pct = 0.01  # 1% base
                         max_risk_usd = account_value * base_risk_pct * risk_multiplier
                         
+                        # Enforce minimum allocation based on asset price to meet exchange minimums
+                        min_notional_usd = 10.0  # Hyperliquid minimum is typically around $10
+                        min_alloc_usd = max(10.0, min_notional_usd)
+                        alloc_usd = max(alloc_usd, min_alloc_usd)
+                        
                         # Cap allocation by risk limit
                         if alloc_usd > max_risk_usd:
                             add_event(f"Capping {asset} allocation from ${alloc_usd:.0f} to ${max_risk_usd:.0f} (grade {setup_grade})")
                             alloc_usd = max_risk_usd
                         
-                        if alloc_usd <= 0:
-                            add_event(f"Holding {asset}: zero/negative allocation")
+                        # Final check: if allocation is still too small after risk cap, skip
+                        if alloc_usd < min_alloc_usd:
+                            add_event(f"Holding {asset}: allocation ${alloc_usd:.0f} below minimum ${min_alloc_usd:.0f} after risk cap")
                             continue
+                        
                         amount = alloc_usd / current_price
 
                         # Set leverage based on setup grade (Fabio Valenti's leverage policy)

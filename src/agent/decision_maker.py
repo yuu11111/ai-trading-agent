@@ -60,7 +60,7 @@ class TradingAgent:
             "- Choose one: buy / sell / hold / cancel_specific.\n"
             "- cancel_specific: Cancel specific orders by their IDs (provide order_ids array).\n"
             "- Proactively harvest profits when price action presents a clear, high-quality opportunity that aligns with your thesis.\n"
-            "- You control allocation_usd.\n"
+            "- You control allocation_usd. Minimum allocation is $10 - do not specify allocations below $10.\n"
             "- TP/SL sanity:\n"
             "  • BUY: tp_price > current_price, sl_price < current_price\n"
             "  • SELL: tp_price < current_price, sl_price > current_price\n"
@@ -235,7 +235,7 @@ class TradingAgent:
             base_properties = {
                 "asset": {"type": "string", "enum": assets},
                 "action": {"type": "string", "enum": ["buy", "sell", "hold", "cancel_specific"]},
-                "allocation_usd": {"type": "number", "minimum": 0},
+                "allocation_usd": {"type": "number", "minimum": 10},
                 "tp_price": {"type": ["number", "null"]},
                 "sl_price": {"type": ["number", "null"]},
                 "exit_plan": {"type": "string"},

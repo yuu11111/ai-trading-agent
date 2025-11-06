@@ -156,6 +156,13 @@ class HyperliquidAPI:
             Raw SDK response from :meth:`Exchange.market_open`.
         """
         amount = self.round_size(asset, amount)
+        
+        # Check minimum order size
+        current_price = await self.get_current_price(asset)
+        notional_value = amount * current_price
+        if notional_value < 10.0:  # Hyperliquid minimum is around $10
+            raise ValueError(f"Order notional ${notional_value:.2f} below minimum $10 for {asset}")
+        
         if leverage is not None:
             await self._retry(lambda: self.exchange.update_leverage(leverage, asset, is_cross=True))
         return await self._retry(lambda: self.exchange.market_open(asset, True, amount, None, slippage))
@@ -173,6 +180,13 @@ class HyperliquidAPI:
             Raw SDK response from :meth:`Exchange.market_open`.
         """
         amount = self.round_size(asset, amount)
+        
+        # Check minimum order size
+        current_price = await self.get_current_price(asset)
+        notional_value = amount * current_price
+        if notional_value < 10.0:  # Hyperliquid minimum is around $10
+            raise ValueError(f"Order notional ${notional_value:.2f} below minimum $10 for {asset}")
+        
         if leverage is not None:
             await self._retry(lambda: self.exchange.update_leverage(leverage, asset, is_cross=True))
         return await self._retry(lambda: self.exchange.market_open(asset, False, amount, None, slippage))
