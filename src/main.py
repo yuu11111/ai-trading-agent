@@ -386,7 +386,7 @@ def main():
                         # Fabio Valenti's Dynamic Risk Management: adjust based on setup grade
                         risk_multiplier = {"A": 2.5, "B": 1.5, "C": 1.0}.get(setup_grade, 1.0)
                         base_risk_pct = 0.01  # 1% base
-                        max_risk_usd = account_value * base_risk_pct * risk_multiplier
+                        max_risk_usd = max(account_value * base_risk_pct * risk_multiplier, 20.0)  # Minimum $20 risk
                         
                         # Enforce minimum allocation based on asset price to meet exchange minimums
                         min_notional_usd = 10.0  # Hyperliquid minimum is typically around $10

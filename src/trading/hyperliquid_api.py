@@ -134,14 +134,27 @@ class HyperliquidAPI:
         Returns:
             The input ``amount`` rounded to the market's ``szDecimals`` precision.
         """
-        meta = self._meta_cache[0] if hasattr(self, '_meta_cache') and self._meta_cache else None
-        if meta:
+        # Try to get metadata if we don't have it
+        if not self._meta_cache:
+            try:
+                # For synchronous call, we'll use a basic fallback
+                # In async context, call get_meta_and_ctxs() first
+                pass
+            except:
+                pass
+        
+        if self._meta_cache and isinstance(self._meta_cache, list) and len(self._meta_cache) > 0:
+            meta = self._meta_cache[0]
             universe = meta.get("universe", [])
             asset_info = next((u for u in universe if u.get("name") == asset), None)
             if asset_info:
                 decimals = asset_info.get("szDecimals", 8)
                 return round(amount, decimals)
-        return round(amount, 8)
+        
+        # Default rounding for BTC and common assets
+        if asset == "BTC":
+            return round(amount, 4)  # BTC typically uses 4 decimal places
+        return round(amount, 6)  # Default for other assets
 
     async def place_buy_order(self, asset, amount, slippage=0.01, leverage=None):
         """Submit a market buy order with exchange-side rounding and retry logic.
@@ -155,6 +168,9 @@ class HyperliquidAPI:
         Returns:
             Raw SDK response from :meth:`Exchange.market_open`.
         """
+        # Ensure we have metadata for proper rounding
+        await self.get_meta_and_ctxs()
+        
         amount = self.round_size(asset, amount)
         
         # Check minimum order size
@@ -179,6 +195,9 @@ class HyperliquidAPI:
         Returns:
             Raw SDK response from :meth:`Exchange.market_open`.
         """
+        # Ensure we have metadata for proper rounding
+        await self.get_meta_and_ctxs()
+        
         amount = self.round_size(asset, amount)
         
         # Check minimum order size
